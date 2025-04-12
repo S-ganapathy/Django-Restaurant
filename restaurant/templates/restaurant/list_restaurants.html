@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1 class="text-center font-semibold text-2xl mt-4 text-[#323941]">
+    {% if bookmarked %}
+    Book Marked Restaurants
+    {% elif visited %}
+    Visited Restaurants
+    {% elif spotlight %}
+    Spotlight Restaurants
+    {% endif %}
+</h1>
+
+<div class="flex justify-center flex-wrap gap-6 pt-8 pr-8 pb-8 pl-8 w-full h-screen">
+
+    {% include 'includes/restaurant_cards.html' %}
+</div>
+
+{% endblock %}

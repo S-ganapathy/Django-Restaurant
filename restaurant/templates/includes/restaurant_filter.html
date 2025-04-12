@@ -1,0 +1,180 @@
+
+<form method="GET" class="space-y-2 p-1 bg-white">
+
+        <div class="fixed right-0 top-[80px] w-full xs:w-[70%] xs:ml-[30%] sm:w-[70%] sm:ml-[28%] md:w-[75%] lg:w-[80%] flex items-center justify-center gap-4 p-2 mb-2 bg-gray-100">
+            <!-- Search Input -->
+            <input 
+                type="text" 
+                name="search" 
+                placeholder="Search restaurants..." 
+                value="{{ request.GET.search }}" 
+                class=" w-[80%] border rounded-lg px-4 py-2 focus:outline-none focus:border-[#92B53D]"
+            />
+            <!-- Other filters and sorting -->
+            <button type="submit" class="px-4 py-2 bg-[#92B53D] text-sm text-white rounded-lg hover:bg-[#6c8a2f]">
+                Apply
+            </button>
+
+                    <!-- Clear Filters Button -->
+        <div class="">
+            <a href="{% url 'restaurant_list' %}" class="px-4 py-2 bg-[#323941] hover:bg-[#4a5568] text-white text-sm rounded-lg">
+                Clear
+            </a>
+        </div>
+        </div>
+
+    <p class="flex justify-between items-center font-semibold text-sm ">Filters <i class="fa-solid fa-filter" style="color: #323941;"></i></p>
+
+
+    <div x-data="{ 
+        activeAccordion: '', 
+        setActiveAccordion(id) { 
+            this.activeAccordion = (this.activeAccordion == id) ? '' : id 
+        } 
+    }" class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md ">
+
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left text-[#323941] text-sm  select-none font-semibold hover:bg-gray-100">
+            <span>City</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <input type="text" name="city" id="city" class="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:border-[#92B53D]"
+               placeholder="Enter City..." value="{{ request.GET.city }}" list="city-list">
+        <datalist id="city-list">
+            {% for city in cities %}
+            <option value={{city}}></option>
+            {% endfor %}
+        </datalist>
+            </div>
+        </div>
+    </div>
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left select-none text-[#323941] text-sm font-semibold hover:bg-gray-100">
+            <span>Food Type</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <div class="flex flex-wrap gap-4 mt-2">
+                    {% for choice in form.food_type %}
+                        <label class="inline-flex items-center space-x-2">
+                            {{ choice.tag }}
+                            <span class="ml-2 text-gray-600">{{ choice.choice_label }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left select-none text-[#323941] text-sm font-semibold hover:bg-gray-100">
+            <span>Cusisine</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <select name="cuisines" id="cuisines" multiple class="w-full  p-3 mt-1 border rounded-lg focus:outline-none focus:border-[#92B53D] overflow-hidden h-auto focus:h-auto focus:overflow-y-auto">
+                    {% for choice in form.cuisines.field.choices %}
+                        <option value="{{ choice.0 }}"{% if choice.0 in request.GET.cuisines %}selected{% endif %} >
+                            {{ choice.1 }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left select-none text-[#323941] text-sm font-semibold hover:bg-gray-100">
+            <span>Rating</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <input type="number" name="rating" id="rating" min="0" max="5" step="0.1"
+               class="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:border-[#92B53D]"
+               placeholder="Enter Rating" value="{{ request.GET.rating }}">
+            </div>
+        </div>
+    </div>
+
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left select-none text-[#323941] text-sm font-semibold hover:bg-gray-100">
+            <span>Cost for Two</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <input type="number" name="cost_of_two" id="cost_of_two" min="0" max="10000" step="100"
+                class="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:border-[#92B53D]"
+                placeholder="Enter cost..." value="{{ request.GET.cost_of_two }}">
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <p class="flex justify-between items-center font-semibold text-sm ">Sortable <i class="fa-solid fa-sort" style="color: #323941;"></i></p>
+    <div x-data="{ 
+        activeAccordion: '', 
+        setActiveAccordion(id) { 
+            this.activeAccordion = (this.activeAccordion == id) ? '' : id 
+        } 
+    }" class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md">
+
+
+    <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left select-none text-[#323941] text-sm font-semibold hover:bg-gray-100">
+            <span>Sorting</span>
+            <svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </button>
+        <div x-show="activeAccordion==id" x-collapse x-cloak>
+            <div class="p-4 pt-0 opacity-70">
+                <select name="sort_by" id="sort_by" class="w-full p-3 mt-1 border rounded-lg focus:outline-none focus:border-[#92B53D]">
+                    {% for value, label in form.sort_by.field.widget.choices %}
+                        <option value="{{ value }}" {% if value == request.GET.sort_by %} selected {% endif %} >  
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <!-- Is Open checkbox -->
+    <div class="flex items-center space-x-2 p-2">
+        <input type="checkbox" name="is_open" id="is_open" class="h-5 w-5 border-gray-300 rounded focus:ring-[#92B53D]"
+               {% if request.GET.is_open %}checked{% endif %}>
+        <label for="is_open" class="text-[#323941] text-sm font-semibold">Currently Open</label>
+    </div>
+
+
+
+    <!-- Submit Button -->
+    <div class="flex justify-center items-center">
+        <button type="submit" class="w-[80%] py-2 bg-[#92B53D] hover:bg-[#A7C95A] text-white rounded-lg text-sm">
+            Apply Filters
+        </button>
+    </div>
+
+
+<!-- Clear Filters Button -->
+<div class="text-center mt-6">
+    <a href="{% url 'restaurant_list' %}" class="w-[80%] inline-block px-6 py-2 bg-[#323941] hover:bg-[#4a5568] text-white text-sm rounded-lg">
+        Reset
+    </a>
+</div>
+
+
+
+
+</form>
+
+

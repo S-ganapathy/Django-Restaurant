@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-lg mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+    <h1 class="text-lg font-bold mb-4 text-gray-800">Login to Your Account</h1>
+    <p class="text-gray-600 text-sm mb-4">Welcome back! Please enter your credentials to access your account.</p>
+
+    <form method="post" class="space-y-4" novalidate>
+        {% csrf_token %}
+        {% include 'includes/form.html' %}
+        <button type="submit" class="w-full bg-[#92B53D] text-white text-sm py-2 px-4 rounded-md hover:bg-[#A7C95A]">
+            Login
+        </button>
+        <div class="flex justify-between items-center text-gray-600 mt-4">
+            <a href="{% url 'password_reset' %}" class="text-blue-600 text-sm hover:underline">Forgot Password?</a>
+            <span>Don't have an account? 
+                <a href="{% url 'user_registration' %}" class="text-blue-600 text-sm hover:underline">Sign Up</a>
+            </span>
+        </div>
+    </form>
+</div>
+{% endblock %}

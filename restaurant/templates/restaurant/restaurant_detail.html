@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<div class="w-full flex">
+
+    <div class="w-[75%] flex flex-col px-4 h-screen overflow-auto pb-[50px]">
+
+        
+        <div class="flex justify-center">
+            {% if restaurant.images.first.image.url %}
+            <div x-data="{            
+                slides: [
+                    {% for image in restaurant.images.all %}
+                        {
+                            imgSrc: '{{ image.image.url }}',
+                            imgAlt: 'New collection - ride the wave of excitement.',
+                        },    
+                    {% endfor %}
+                ],            
+                currentSlideIndex: 1,
+                previous() {                
+                    if (this.currentSlideIndex > 1) {                    
+                        this.currentSlideIndex = this.currentSlideIndex - 1                
+                    } else {   
+                        // If it's the first slide, go to the last slide           
+                        this.currentSlideIndex = this.slides.length                
+                    }            
+                },            
+                next() {                
+                    if (this.currentSlideIndex < this.slides.length) {                    
+                        this.currentSlideIndex = this.currentSlideIndex + 1                
+                    } else {                 
+                        // If it's the last slide, go to the first slide    
+                        this.currentSlideIndex = 1                
+                    }            
+                },        
+            }" class="relative w-[600px] h-[340px] overflow-hidden flex justify-center items-center">
+            
+                <!-- previous button -->
+                <button type="button" class="absolute left-5 top-1/2 z-20 flex rounded-full -translate-y-1/2 items-center justify-center bg-white/60 p-2 text-neutral-600 transition hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black active:outline-offset-0 dark:bg-neutral-950/60 dark:text-neutral-300 dark:hover:bg-neutral-950/80 dark:focus-visible:outline-white" aria-label="previous slide" x-on:click="previous()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="3" class="size-5 md:size-6 pr-0.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+            
+                <!-- next button -->
+                <button type="button" class="absolute right-5 top-1/2 z-20 flex rounded-full -translate-y-1/2 items-center justify-center bg-white/60 p-2 text-neutral-600 transition hover:bg-white/80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black active:outline-offset-0 dark:bg-neutral-950/60 dark:text-neutral-300 dark:hover:bg-neutral-950/80 dark:focus-visible:outline-white" aria-label="next slide" x-on:click="next()">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="3" class="size-5 md:size-6 pl-0.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            
+                <!-- slides -->
+                <div class="relative object-cover w-[500px] h-[260px]">
+                    <template x-for="(slide, index) in slides">
+                        <div x-cloak x-show="currentSlideIndex == index + 1" class="absolute inset-0" x-transition.opacity.duration.700ms>
+                            <img class="drop-shadow-2xl rounded-lg absolute w-full h-full inset-0 object-cover text-neutral-600 dark:text-neutral-300" x-bind:src="slide.imgSrc" x-bind:alt="slide.imgAlt" />
+                        </div>
+                    </template>
+                </div>
+                
+                <!-- indicators -->
+                <div class="absolute bottom-3 md:bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-4 md:gap-3  px-1.5 py-1 md:px-2 dark:bg-neutral-950/75" role="group" aria-label="slides" >
+                    <template x-for="(slide, index) in slides">
+                        <button class="size-1 cursor-pointer w-5 rounded-md transition bg-neutral-600 dark:bg-neutral-300" x-on:click="currentSlideIndex = index + 1" x-bind:class="[currentSlideIndex === index + 1 ? 'bg-neutral-600 dark:bg-neutral-300' : 'bg-neutral-600/50 dark:bg-neutral-300/50']" x-bind:aria-label="'slide ' + (index + 1)"></button>
+                    </template>
+                </div>
+            </div>
+            {% else %}
+            <img src="{% static 'img/NO-Image.jpg' %}" alt="Restaurant Image" class="w-[500px] h-[400px]" />
+            {% endif %}
+        </div>
+
+
+        <div class="w-full px-2">
+            <div class=" flex justify-between items-center">
+                <div class="text-lg font-semibold flex items-center ">{{ restaurant.title }}&nbsp; &nbsp; <span>{% if restaurant.is_spotlight %}<img width="36" height="36" src="https://img.icons8.com/color/48/sparkling.png" alt="sparkling"/>{% endif %}</span></div>
+                <!-- rating -->
+                    <div class="flex justify-center items-center text-neutral-500">
+                            <div x-data="{
+                                max_stars: 5,
+                                rating: {{ restaurant.rating }},  
+                                getStarFill(star) {
+                                if (star <= Math.floor(this.rating)) {
+                                    return 'full';
+                                } else if (star === Math.ceil(this.rating) && this.rating % 1 !== 0) {
+                                    return 'half';
+                                } else {
+                                    return 'empty';
+                                }
+                                }
+                                }">
+                                <div class="flex flex-col items-center max-w-4xl mx-auto justify-center">
+                                    <ul class="flex">
+                                        <template x-for="star in max_stars">
+                                            <li class="px-1 cursor-pointer">
+                                                <!-- Full star -->
+                                                <svg x-show="getStarFill(star) === 'full'" class="w-4 h-4 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                                    <rect width="256" height="256" fill="none"/>
+                                                    <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                                                </svg>
+                                                <!-- Half star -->
+                                                <svg x-show="getStarFill(star) === 'half'" class="w-4 h-4 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                                    <rect width="256" height="256" fill="none"/>
+                                                    <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                                                    <path d="M128,29.2a8.36,8.36,0,0,1,7.74,0L160.36,88.8l63.91,5.2a8.46,8.46,0,0,1,4.79,14.83l-48.7,42L193.24,204.4a8.4,8.4,0,0,1-12.52,9.17L128,189.09v-160" fill="currentColor"/>
+                                                </svg>
+                                                <!-- Empty star -->
+                                                <svg x-show="getStarFill(star) === 'empty'" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                                    <rect width="256" height="256" fill="none"/>
+                                                    <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z" fill="white" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                                                </svg>
+                                            </li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- rating -->
+
+                    <div class="flex justify-between items-center">
+                        <div class="font-semibold text-sm"><i class="fa-solid fa-location-dot" style="color: #92b53d;"></i>&nbsp;&nbsp;{{ restaurant.location }}<br>
+                           <span class="text-sm pl-8"> {{ restaurant.address }}</span>
+                        </div>
+                        {% comment %} <!--Bookmark--> {% endcomment %}
+                        {% if user.is_authenticated %}
+                        <div x-data="{
+                            isBookmarked: {{is_bookmarked|yesno:'true,false' }},
+                            toggleBookmark() {
+                                fetch('{% url "toggle_bookmark" restaurant.id %}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': '{{ csrf_token }}',
+                                    },
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                console.log(data)
+                                    this.isBookmarked = data.is_bookmarked;
+                                })
+                                .catch(error => console.error('Error:', error));
+                            }
+                        }"
+                    >
+                        <a 
+                            @click="toggleBookmark" 
+                            :class="" 
+                            class="text-white font-bold py-2 px-4 pr-1 rounded cursor-pointer text-lg"
+                        >
+                            <span x-html="isBookmarked ? '<i class=&quot;fa-solid fa-bookmark&quot; style=&quot;color: #92b53d;&quot;></i>' : '<i class=&quot;fa-regular fa-bookmark&quot; style=&quot;color: #92b53d;&quot;></i>'"></span>
+
+                    </a>
+                    </div>
+                    {% endif %}
+                        {% comment %} <!--Bookmark--> {% endcomment %}
+                    </div>
+
+
+                    <div class="flex justify-between items-center">
+                    <div class="text-sm font-semibold">
+                        {% if restaurant.is_open %} <i class="fa-solid fa-door-open" style="color: #92b53d;"></i>&nbsp;&nbsp;<span class="text-sm">(open now)</span> {% else %} <i class="fa-solid fa-door-open" style="color: #fa5252;"></i>&nbsp;&nbsp;<span class="text-sm">(closed)</span>{% endif %}
+                        <span class="text-sm">{{ restaurant.open_time }} - {{ restaurant.close_time }}</span>
+                    </div>
+                    <div class="flex justify-center items-center gap-2">
+                       {% if user.is_authenticated %}
+                        <!--Visited-->
+                        <div x-data="{
+                            isVisited: {{ is_visited|yesno:'true,false' }},
+                            toggleVisited() {
+                                fetch('{% url "toggle_visited" restaurant.id %}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'X-CSRFToken': '{{ csrf_token }}',
+                                    },
+                                })
+                                .then(response => response.json())
+                                .then(data => {
+                                    this.isVisited = data.is_visited;
+                                })
+                                .catch(error => console.error('Error:', error));
+                            }
+                        }"
+                    >
+                        <button 
+                            @click="toggleVisited" 
+                            :class="isVisited ? 'bg-[#4a5568] hover:bg-[#323941]' : 'bg-[#92B53D] hover:bg-[#A7C95A]'" 
+                            class="text-white font-medium text-sm py-1 px-2 rounded"
+                        >
+                            <span x-text="isVisited ? 'visited' : 'Mark visited'"></span>
+                        </button>
+                    </div>
+                    <!--visited-->
+                    {% endif %}
+                    </div>
+                </div>
+
+        </div>
+
+        <div class="flex gap-2 w-full flex p-2">
+            <div class="w-full p-2 border border-gray-200 bg-white rounded-md">
+            <p class="text-base font-medium py-2 ">Details</p>
+            <hr class='bg-gray-300 h-[1px]'>
+            <div class="text-xs font-medium text-gray-700 py-2">COST FOR TWO</div>
+            <div class="font-medium text-sm">₹&nbsp;{{ restaurant.cost_of_two }}</div>
+            {% if restaurant.cuisines %}
+            <div class="text-xs font-medium text-gray-700 py-2">CUISINES</div>
+            <div class="font-medium text-sm">{{ restaurant.cuisines }}</div>
+            {% endif %}
+            <div class="text-xs font-medium text-gray-700 py-2">FOOD</div>
+            <div class="font-medium text-sm">{{ restaurant.food_type }}</div>
+
+            <div class="text-xs font-medium text-gray-700 py-2">SPOT-LIGHT</div>
+            {% if restaurant.is_spotlight %}
+            <div class="font-medium"><img width="32" height="32" src="https://img.icons8.com/glyph-neue/64/40C057/approval.png" alt="approval"/></div>
+            {% else %}
+             <div class="font-medium"><img width="32" height="32" src="https://img.icons8.com/glyph-neue/48/FA5252/approval.png" alt="approval"/></div>
+            {% endif %}
+            </div>
+
+
+            {% if user.is_authenticated and  not is_rated %}
+            <div class="bg-white p-2 h-[280px]  w-[60%] border border-gray-200 bg-white rounded-md">
+                <form method="POST">
+                    {% csrf_token %}
+                <div class="text-base mb-2 font-medium pt-2  pr-2 flex justify-end items-center gap-[100px]">
+                    <div>Rate us</div>
+                    <button type="submit" class="bg-gray-300 px-2 rounded text-black text-sm hover:text-white hover:bg-[#92B53D]">ADD</button>
+                </div>
+                <hr class='bg-gray-300 h-[1px]'>
+                <div class="flex flex-col mb-2">
+                
+                    <!-- Star Rating -->
+                    
+                    <div x-data="{
+                        disabled: false,
+                        max_stars: 5,
+                        stars: 0,
+                        value: 0,
+                        hoverStar(star){
+                            if (this.disabled) {
+                                return;
+                            }
+                    
+                            this.stars = star; 
+                        },
+                        mouseLeftStar(){
+                            if (this.disabled) {
+                                return;
+                            }
+                        
+                            this.stars = this.value;
+                        },
+                        rate(star){
+                            if (this.disabled) {
+                                return;
+                            }
+                    
+                            this.stars = star;
+                            this.value = star;
+                    
+                            $refs.rated.classList.remove('opacity-0');
+                            setTimeout(function(){
+                                $refs.rated.classList.add('opacity-0');
+                            }, 2000);
+                        },
+                        reset(){
+                            if (this.disabled) {
+                                return;
+                            }
+                    
+                            this.value = 0;
+                            this.stars = 0;
+                        }
+                    }" x-init="this.stars = this.value" class="mt-4 pt-2">
+                    <div class="flex flex-col items-center max-w-6xl mx-auto jusitfy-center relative">
+                        <div x-ref="rated" class="absolute text-xs text-gray-400 duration-300 ease-out -translate-y-full opacity-0">Rated <span x-text="value"></span> Stars</div>
+                        <input type="hidden" name="rating" x-model="value">
+                        <ul class="flex">
+                            <template x-for="star in max_stars">
+                                <li @mouseover="hoverStar(star)" @mouseleave="mouseLeftStar" @click="rate(star)" class="px-1 cursor-pointer" :class="{ 'text-gray-400 cursor-not-allowed': disabled}">
+                                    <svg x-show="star > stars" class="w-4 h-4 text-gray-300 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+                                    <svg x-show="star <= stars" class="w-4 h-4 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/></svg>
+                                </li>
+                            </template>
+                        </ul>
+                        <button @click="reset" type="button" class="inline-flex items-center px-1 py-0.5 mt-2 text-xs text-gray-600 bg-gray-200 rounded-full hover:bg-black hover:text-white">
+                            <svg class="w-2 h-2 mr-0.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" fill="none"/><polyline points="24 56 24 104 72 104" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"/><path d="M67.59,192A88,88,0,1,0,65.77,65.77L24,104" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="24"/></svg>
+                            <span>Reset</span>
+                        </button>
+                    </div>
+                    </div>
+                
+                    
+            
+                    <!-- Comment -->
+                    <div class="mt-2">
+                        <label for="comment" class="block text-gray-700 font-medium text-sm">Your Comment:</label>
+                        <textarea
+                            id="comment"
+                            name="comment"
+                            rows="4"
+                            class="w-full p-2 mt-2 h-[100px] border rounded-lg outline-none text-xs"
+                            placeholder="Write your comment here..."
+                            required
+                        ></textarea>
+                    </div>
+                </form>
+            </div>
+            </div>
+            {% endif %}
+
+
+
+        </div>
+
+
+        {% if restaurant.reviews.all %}
+        <div class="w-full p-2">
+            <div class="p-2 border border-gray-200 bg-white rounded-md">
+            <p class="text-base font-medium py-2 ">Reviews</p>
+            <hr class='bg-gray-300 h-[1px]'>
+
+            {% for review in restaurant.reviews.all %}
+            <div class="flex justify-start items-center gap-4 pt-3 pl-2 ">
+                <div class="profile-icon h-8 w-8 rounded-full flex items-center justify-center text-lmedfont-medium text-white">{{ review.user.username | get_first_letter_capitalize }}</div>
+            <div>
+                {% if user.is_authenticated and user.get_username == review.user.username %}
+                <div  class="text-sm">Me</div>
+                {% else %}
+                <div  class="text-sm">{{review.user.username | capitalize_first}}</div>
+                {% endif %}
+                <div class="text-xs">{{ review.updated_at | naturaltime }}</div>
+            </div>
+
+            {% if user.is_authenticated and user.get_username == review.user.username %}
+            <div class="flex gap-2 text-lg ml-4 self-end">
+                <a href="{% url 'review_edit' review.pk %}"><div class="hover:text-lg p-2"><i class="fa-regular fa-pen-to-square" style="color: #323941;"></i></div></a>
+                <a href="{% url 'review_delete' review.pk %}"><div class="hover:text-lg p-2"><i class="fa-regular fa-trash-can" style="color: #fa5252;"></i></div></a>
+            </div>
+            {% endif %}
+
+            </div>
+
+            <!--Rating-->
+            <div class="flex justify-start items-center pt-2 pl-2">
+                <div x-data="{
+              max_stars: 5,
+              rating: {{ review.rating }},  
+              getStarFill(star) {
+                  if (star <= Math.floor(this.rating)) {
+                      return 'full';
+                  } else if (star === Math.ceil(this.rating) && this.rating % 1 !== 0) {
+                      return 'half';
+                  } else {
+                      return 'empty';
+                  }
+                 }
+                 }">
+                <div class="flex flex-col items-center max-w-4xl mx-auto justify-center">
+                <ul class="flex">
+                  <template x-for="star in max_stars">
+                      <li class="px-0.5 cursor-pointer">
+                          <!-- Full star -->
+                          <svg x-show="getStarFill(star) === 'full'" class="w-3 h-3 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                              <rect width="256" height="256" fill="none"/>
+                              <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                          </svg>
+                          <!-- Half star -->
+                          <svg x-show="getStarFill(star) === 'half'" class="w-3 h-3 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                              <rect width="256" height="256" fill="none"/>
+                              <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                              <path d="M128,29.2a8.36,8.36,0,0,1,7.74,0L160.36,88.8l63.91,5.2a8.46,8.46,0,0,1,4.79,14.83l-48.7,42L193.24,204.4a8.4,8.4,0,0,1-12.52,9.17L128,189.09v-160" fill="currentColor"/>
+                          </svg>
+                          <!-- Empty star -->
+                          <svg x-show="getStarFill(star) === 'empty'" class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                              <rect width="256" height="256" fill="none"/>
+                              <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z" fill="white" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                      </li>
+                  </template>
+              </ul>
+              </div>
+              </div>
+            </div>
+            <!--raing-->
+            <p class="p-2 text-justify text-sm">{{ review.comment }}</p>
+            {% endfor %}
+           
+            </div>
+        </div>
+        {% endif %}
+
+
+
+
+     </div>
+
+
+     <div class="w-[25%] h-screen overflow-auto restaurant-detail border-l border-gray-300 bg-white fixed right-0 pb-[100px]">
+        <div class="flex justify-center items-center font-bold text-base w-full h-12 border-b border-gray-200">M E N U</div>
+
+        <!--Veg-->
+        {% if not veg_dishes and not vegan_dishes and not non_veg_dishes %}
+
+        <div class="flex justify-center items-center font-semibold text-lg text-[#FA5252] p-8">No Dishes Found </div>
+        {% else %}
+
+        {% if veg_dishes %}
+        <div class="flex justify-center items-center font-semibold text-sm w-full h-12 bg-gray-100 border-b border-gray-200">vegitarian</div>
+        <div x-data="{ 
+                activeAccordion: '', 
+                setActiveAccordion(id) { 
+                    this.activeAccordion = (this.activeAccordion == id) ? '' : id 
+                } 
+                }" class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md ">
+                {% for dish in veg_dishes %}
+
+             <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+            
+                    <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left text-[#323941] text-sm  select-none font-semibold ">
+                        <span>{{ dish.name }} </span>
+                        <span class="flex justify-center items-center text-sm">₹&nbsp;<span class="text-gray-600">{{dish.price}}</span>&nbsp;&nbsp;<svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                    </button>
+                    <div x-show="activeAccordion==id" x-collapse x-cloak>
+                        <div class="p-4 pt-0 opacity-70 text-xs">
+                            <p class="font-bold text-xs">CUISINE &nbsp; &nbsp;<span class="font-semibold text-gray-700">{{dish.cuisine}}</span></p>
+                            {% if dish.description %}
+                            <p class="text-xs">{{dish.description}}</p>
+                            {% else %}
+                            <p class="text-xs">No Description Available</p>
+                            {% endif %}
+                        </div>
+                 </div>
+           </div>
+                 {% endfor %}
+     </div>
+     {% endif %}
+
+     <!--vegan-->
+            {% if vegan_dishes %}
+            <div class="flex justify-center items-center font-semibold text-sm w-full h-12 bg-gray-100 border-b border-gray-200">vegan</div>
+            <div x-data="{ 
+                    activeAccordion: '', 
+                    setActiveAccordion(id) { 
+                        this.activeAccordion = (this.activeAccordion == id) ? '' : id 
+                    } 
+                    }" class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md ">
+                    {% for dish in vegan_dishes %}
+
+                <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+                
+                        <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left text-[#323941] text-sm  select-none font-semibold ">
+                            <span>{{ dish.name }} </span>
+                            <span class="flex justify-center items-center text-sm">₹&nbsp;<span class="text-gray-600">{{dish.price}}</span>&nbsp;&nbsp;<svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                        </button>
+                        <div x-show="activeAccordion==id" x-collapse x-cloak>
+                            <div class="p-4 pt-0 opacity-70">
+                                <p class="font-bold text-xs">CUISINE &nbsp; &nbsp;<span class="font-semibold text-gray-700">{{dish.cuisine}}</span></p>
+                                {% if dish.description %}
+                                <p class="text-xs">{{dish.description}}</p>
+                                {% else %}
+                                <p class="text-xs">No Description Available</p>
+                                {% endif %}
+                            </div>
+                    </div>
+                </div>
+                {% endfor %}
+        </div>
+        {% endif %}
+
+
+        <!--Non Veg-->
+        {% if non_veg_dishes %}
+        <div class="flex justify-center items-center font-semibold text-sm w-full h-12 bg-gray-100 border-b border-gray-200">Non vegitarian</div>
+        <div x-data="{ 
+                activeAccordion: '', 
+                setActiveAccordion(id) { 
+                    this.activeAccordion = (this.activeAccordion == id) ? '' : id 
+                } 
+                }" class="relative w-full mx-auto overflow-hidden text-sm font-normal bg-white border border-gray-200 divide-y divide-gray-200 rounded-md ">
+                {% for dish in non_veg_dishes %}
+
+            <div x-data="{ id: $id('accordion') }" class="cursor-pointer group">
+            
+                    <button type="button" @click="setActiveAccordion(id)" class="flex items-center justify-between w-full p-4 text-left text-[#323941] text-sm  select-none font-semibold ">
+                        <span>{{ dish.name }} </span>
+                        <span class="flex justify-center items-center text-sm">₹&nbsp;<span class="text-gray-600">{{dish.price}}</span>&nbsp;&nbsp;<svg class="w-4 h-4 duration-200 ease-out" :class="{ 'rotate-180': activeAccordion==id }" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></span>
+                    </button>
+                    <div x-show="activeAccordion==id" x-collapse x-cloak>
+                        <div class="p-4 pt-0 opacity-70">
+                            <p class="font-bold text-xs">CUISINE &nbsp; &nbsp;<span class="font-semibold text-gray-700">{{dish.cuisine}}</span></p>
+                            {% if dish.description %}
+                            <p class="text-xs">{{dish.description}}</p>
+                            {% else %}
+                            <p class="text-xs">No Description Available</p>
+                            {% endif %}
+                        </div>
+                </div>
+            </div>
+            {% endfor %}
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+
+
+
+
+        
+    
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block javascript %}
+<script>
+    const getRandomColor=() => {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const profileIcons = document.querySelectorAll('.profile-icon');
+        profileIcons.forEach(icon => {
+            icon.style.backgroundColor = getRandomColor();
+        });
+    });
+</script>
+
+{% endblock %}

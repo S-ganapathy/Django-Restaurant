@@ -1,0 +1,82 @@
+{% if is_paginated %}
+  <nav aria-label="Pagination" class="mb-4">
+    <ul class="flex items-center justify-center space-x-2">
+      <!-- First Page -->
+      {% if page_obj.number > 1 %}
+        <li>
+          <a href="?page=1" class="px-3 py-1 text-sm font-medium bg-gray-100 border border-gray-300 rounded hover:bg-gray-200">
+            First
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded cursor-not-allowed">
+            First
+          </span>
+        </li>
+      {% endif %}
+
+      <!-- Previous Page -->
+      {% if page_obj.has_previous %}
+        <li>
+          <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-1 text-sm font-medium bg-gray-100 border border-gray-300 rounded hover:bg-gray-200">
+            Previous
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded cursor-not-allowed">
+            Previous
+          </span>
+        </li>
+      {% endif %}
+
+      <!-- Page Numbers -->
+      {% for page_num in paginator.page_range %}
+        {% if page_obj.number == page_num %}
+          <li>
+            <span class="px-3 py-1 text-sm font-medium text-white bg-blue-500 border border-blue-500 rounded">
+              {{ page_num }}
+            </span>
+          </li>
+        {% elif page_num > page_obj.number|add:'-3' and page_num < page_obj.number|add:'3' %}
+          <li>
+            <a href="?page={{ page_num }}" class="px-3 py-1 text-sm font-medium bg-gray-100 border border-gray-300 rounded hover:bg-gray-200">
+              {{ page_num }}
+            </a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      <!-- Next Page -->
+      {% if page_obj.has_next %}
+        <li>
+          <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-1 text-sm font-medium bg-gray-100 border border-gray-300 rounded hover:bg-gray-200">
+            Next
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded cursor-not-allowed">
+            Next
+          </span>
+        </li>
+      {% endif %}
+
+      <!-- Last Page -->
+      {% if page_obj.number != paginator.num_pages %}
+        <li>
+          <a href="?page={{ paginator.num_pages }}" class="px-3 py-1 text-sm font-medium bg-gray-100 border border-gray-300 rounded hover:bg-gray-200">
+            Last
+          </a>
+        </li>
+      {% else %}
+        <li>
+          <span class="px-3 py-1 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded cursor-not-allowed">
+            Last
+          </span>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+{% endif %}

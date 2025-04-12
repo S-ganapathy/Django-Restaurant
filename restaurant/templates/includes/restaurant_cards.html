@@ -1,0 +1,79 @@
+{% load custom_filters %}
+{% load static %}
+{% if restaurants %}
+        {% for restaurant in restaurants %}
+        <a href="{% url 'restaurant_detail' restaurant.id %}">
+          <div class="rounded-lg overflow-hidden border border-neutral-200/60 bg-white text-neutral-700 shadow-sm w-[230px] h-[275px]">
+            <div class="flex justify-center items-center">
+              {% if restaurant.images.first.image.url %}
+              <img src="{{ restaurant.images.first.image.url }}" alt="Restaurant Image" class="w-[250px] h-[180px]" />
+              {% else %}
+              <img src="{% static 'img/NO-Image.jpg' %}" alt="Restaurant Image" class="w-[260px] h-[180px]" />
+              {% endif %}
+            </div>
+
+            <div class=" px-2 py-2 flex flex-col gap-1">
+              <div class="flex justify-between items-center">
+                <div class="w-[150px] text-sm font-bold  tracking-tight text-ellipsis whitespace-nowrap flex justify-start items-center ">{{ restaurant.title }}</div>
+                  <div class="flex justify-center items-center text-neutral-500">
+                    <div x-data="{
+                  max_stars: 5,
+                  rating: {{ restaurant.rating }},  
+                  getStarFill(star) {
+                      if (star <= Math.floor(this.rating)) {
+                          return 'full';
+                      } else if (star === Math.ceil(this.rating) && this.rating % 1 !== 0) {
+                          return 'half';
+                      } else {
+                          return 'empty';
+                      }
+                     }
+                     }">
+                    <div class="flex flex-col items-center max-w-4xl mx-auto justify-center">
+                    <ul class="flex">
+                      <template x-for="star in max_stars">
+                          <li class="px-0.5 cursor-pointer">
+                              <!-- Full star -->
+                              <svg x-show="getStarFill(star) === 'full'" class="w-3 h-3 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                  <rect width="256" height="256" fill="none"/>
+                                  <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                              </svg>
+                              <!-- Half star -->
+                              <svg x-show="getStarFill(star) === 'half'" class="w-3 h-3 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                  <rect width="256" height="256" fill="none"/>
+                                  <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z"/>
+                                  <path d="M128,29.2a8.36,8.36,0,0,1,7.74,0L160.36,88.8l63.91,5.2a8.46,8.46,0,0,1,4.79,14.83l-48.7,42L193.24,204.4a8.4,8.4,0,0,1-12.52,9.17L128,189.09v-160" fill="currentColor"/>
+                              </svg>
+                              <!-- Empty star -->
+                              <svg x-show="getStarFill(star) === 'empty'" class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256">
+                                  <rect width="256" height="256" fill="none"/>
+                                  <path d="M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z" fill="white" stroke="black" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                          </li>
+                      </template>
+                  </ul>
+                  </div>
+                  </div>
+                </div>
+             </div>
+
+              <div class="w-full flex justify-start items-center">
+                <div class="font-semibold text-sm">
+                  {{ restaurant.location | capitalize_first }} &nbsp;&nbsp;&nbsp;
+                </div>
+                  <div class="text-xs font-semibold">
+                  {% if restaurant.is_open %} <i class="fa-solid fa-door-open" style="color: #92b53d;"></i>&nbsp;&nbsp;(open) {% else %} <i class="fa-solid fa-door-open" style="color: #fa5252;"></i>&nbsp;&nbsp;(closed){% endif %}
+                </div>
+                
+              </div>
+              <button onclick="window.location.href='{% url 'restaurant_detail' restaurant.id %}'" class="inline-flex items-center justify-center w-full  px-4 py-2 text-xs font-medium transition-colors rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none bg-white border border-gray-200 hover:bg-gray-100">View Dine</button>
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+
+        {% else %}
+
+        <div class="flex justify-center items-center font-semibold text-xl text-[#FA5252] p-8">No Restaurant Found </div>
+
+      {% endif %}

@@ -1,0 +1,73 @@
+# Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Django-specific
+*.log
+*.pot
+*.pyc
+*.pyo
+__pycache__/
+db.sqlite3
+media/
+staticfiles/
+
+# Django migrations
+migrations/
+
+# Environments and virtualenvs
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDEs and text editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-workspace
+*.sublime-project
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+Desktop.ini
+
+# Database
+*.sqlite3
+*.db
+*.db-journal
+
+# Environment variable files (commonly containing secret keys or credentials)
+.env
+.env.local
+.env.*.local
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Coverage reports
+coverage/
+*.cover
+*.coverage
+*.hypothesis/
+
+# Django Debug Toolbar
+*.pid
+
+# Pytest
+.cache/
+
+# PyCharm and JetBrains
+.idea/
+
+# Local settings for custom projects
+local_settings.py
+
+# File for managing dependencies
+Pipfile.lock
