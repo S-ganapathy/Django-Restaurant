@@ -30,7 +30,7 @@ SECRET_KEY =os.environ.get('DJANGO_SECRET_KEY','django-insecure-5l2v(3myq=ne+s_-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =os.environ.get('DJANGO_DEBUG','') !='False'
 
-ALLOWED_HOSTS = ['Ganapathy.pythonanywhere.com','127.0.0.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', '.trycloudflare.com', '*']
 CSRF_TRUSTED_ORIGINS=['https://Ganapathy.pythonanywhere.com']
 
 # Application definition
